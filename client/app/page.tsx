@@ -1,0 +1,13 @@
+"use client";
+import { useUserContext } from "@/context/userContext";
+import useRedirect from "@/hooks/useUserRedirect";
+import { use, useState } from "react";
+import ChangePasswordForm from "./Components/auth/ChangePasswordForm/ChangePasswordForm";
+
+export default function Home() {
+  useRedirect("/login");
+
+  return (
+    <main></main>
+  );
+}
