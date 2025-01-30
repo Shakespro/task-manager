@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Define color variables for the Radial Chart */
+:root {
+  --color-desktop: hsl(210, 100%, 50%); /* Example desktop color */
+  --color-mobile: hsl(120, 100%, 50%); /* Example mobile color */
+}
+
 body{
   background-color: #f9f9f9;
   height: 100vh;
