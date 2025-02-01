@@ -35,6 +35,10 @@ form > img {
   object-fit: cover;
 }
 
+.main-layout::-webkit-scrollbar {
+  width: 0;
+}
+
 /* Utilities */
 .u-triangle::before {
   content: "";

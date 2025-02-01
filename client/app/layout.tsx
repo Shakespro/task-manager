@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "@fortawesome/fontawesome-free/css/all.min.css"; // Import Font Awesome CSS
 import { Toaster } from "react-hot-toast";
 import UserProvider from "@/providers/UserProvider";
 import { Inter } from "next/font/google";
