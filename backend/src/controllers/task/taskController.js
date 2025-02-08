@@ -1,19 +1,19 @@
 import asyncHandler from 'express-async-handler';
 import TaskModel from '../../models/tasks/TaskModel.js';
 
+// Create a task
 export const createTask = asyncHandler(async (req, res) => {
+    const { title, description, dueDate, priority, status } = req.body;
+
+    // Input validation
+    if (!title || title.trim() === "") {
+        return res.status(400).json({ message: 'Title is required!' });
+    }
+    if (!description || description.trim() === "") {
+        return res.status(400).json({ message: 'Description is required' });
+    }
+
     try {
-        const { title, description, dueDate, priority, status } = req.body;
-
-        if(!title || title.trim()  === "") {
-            res.status(400).json({ message: 'Title is required!' });
-        
-        }
-        if(!description || description.trim() === "") {
-            res.status(400).json({ message: 'Description is required' });
-        
-        }
-
         const task = new TaskModel({
             title,
             description,
@@ -22,87 +22,80 @@ export const createTask = asyncHandler(async (req, res) => {
             status,
             user: req.user._id,
         });
-        
-        await task.save();
 
+        await task.save();
         res.status(201).json(task);
     } catch (error) {
-        console.log("Error in createTask: ", error.message);
+        console.error("Error in createTask: ", error.stack);
         res.status(500).json({ message: error.message });
     }
 });
 
+// Get all tasks
 export const getTasks = asyncHandler(async (req, res) => {
-    try {
-        const userId = req.user._id;
-
-        if (!userId) {
-            res.status(400).json({ message: 'User not found' });
-          
-        }
-
-        const tasks = await TaskModel.find({ user: userId });
-
-        res.status(200).json(
-            {length: tasks.length,
-            tasks 
-            }
-        ); 
-    } catch (error) {
-        console.log("Error in getTasks: ", error.message);
-        res.status(500).json({ message: error.message });
-    }
-}); 
-
-export const getTask = asyncHandler(async (req, res) => {
-    try {
     const userId = req.user._id;
 
-    const {id} = req.params;
-
-    if (!id) {
-        res.status(400).json({ message: 'Please provide a task id' });    
-    } 
-    const task = await TaskModel.findById(id);
-
-    if (!task) {
-        res.status(404).json({ message: 'Task not found' });
+    if (!userId) {
+        return res.status(400).json({ message: 'User not found' });
     }
 
-    if(!task.user.equals(userId)) {
-        res.status(401).json({ message: 'Not authorized to view this task' });
-    
-    }
-
-    res.status(200).json(task);
+    try {
+        const tasks = await TaskModel.find({ user: userId });
+        res.status(200).json({ length: tasks.length, tasks });
     } catch (error) {
-        console.log("Error in getTask: ", error.message);
+        console.error("Error in getTasks: ", error.stack);
         res.status(500).json({ message: error.message });
-    } 
+    }
 });
 
-export const updateTask = asyncHandler(async (req, res) => {
+// Get a single task by ID
+export const getTask = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    if (!id) {
+        return res.status(400).json({ message: 'Please provide a task id' });
+    }
+
     try {
-        const userId = req.user._id;
-        const { id } = req.params;
-        const { title, description, dueDate, priority, status, completed } = req.body;
-
-        if (!id) {
-            res.status(400).json({ message: 'Please provide a task id' });
-        }
-
         const task = await TaskModel.findById(id);
 
         if (!task) {
-            res.status(404).json({ message: 'Task not found' });
-        }
-        
-        // Check if the user is authorized to update the task
-        if (!task.user.equals(userId)) {
-            res.status(401).json({ message: 'Not authorized to update this task' });
+            return res.status(404).json({ message: 'Task not found' });
         }
 
-        // update the task with the new values if they exist or use the old values if they don't
+        if (!task.user.equals(userId)) {
+            return res.status(401).json({ message: 'Not authorized to view this task' });
+        }
+
+        res.status(200).json(task);
+    } catch (error) {
+        console.error("Error in getTask: ", error.stack);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Update a task
+export const updateTask = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { title, description, dueDate, priority, status, completed } = req.body;
+    const userId = req.user._id;
+
+    if (!id) {
+        return res.status(400).json({ message: 'Please provide a task id' });
+    }
+
+    try {
+        const task = await TaskModel.findById(id);
+
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        if (!task.user.equals(userId)) {
+            return res.status(401).json({ message: 'Not authorized to update this task' });
+        }
+
         task.title = title || task.title;
         task.description = description || task.description;
         task.dueDate = dueDate || task.dueDate;
@@ -111,35 +104,33 @@ export const updateTask = asyncHandler(async (req, res) => {
         task.completed = completed || task.completed;
 
         await task.save();
-
         res.status(200).json(task);
     } catch (error) {
-        console.log("Error in updateTask: ", error.message);
+        console.error("Error in updateTask: ", error.stack);
         res.status(500).json({ message: error.message });
     }
 });
 
+// Delete a task
 export const deleteTask = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user._id;
 
     try {
-        const userId = req.user._id;
-        const { id } = req.params;
-
         const task = await TaskModel.findById(id);
 
         if (!task) {
-            res.status(404).json({ message: 'Task not found' });
+            return res.status(404).json({ message: 'Task not found' });
         }
 
         if (!task.user.equals(userId)) {
-            res.status(401).json({ message: 'Not authorized to delete this task' });
+            return res.status(401).json({ message: 'Not authorized to delete this task' });
         }
 
         await TaskModel.findByIdAndDelete(id);
-
-        return res.status(200).json({ message: 'Task deleted successfully' });
+        res.status(200).json({ message: 'Task deleted successfully' });
     } catch (error) {
-        console.log("Error in deleteTask: ", error.message);
+        console.error("Error in deleteTask: ", error.stack);
         res.status(500).json({ message: error.message });
     }
 });
