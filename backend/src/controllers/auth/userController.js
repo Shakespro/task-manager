@@ -8,6 +8,7 @@ import crypto from "node:crypto";
 import hashToken from "../../helpers/hashToken.js";
 import sendEmail from "../../helpers/sendEmail.js";
 
+// register user
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 

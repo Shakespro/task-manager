@@ -89,26 +89,21 @@ export const UserContextProvider = ({ children }) => {
   };
 
   // get user Looged in Status
+  // changed to avoid unneccessary state updates
   const userLoginStatus = async () => {
-    let loggedIn = false;
     try {
       const res = await axios.get(`${serverUrl}/api/v1/login-status`, {
-        withCredentials: true, // send cookies to the server
+        withCredentials: true,
       });
-
-      // coerce the string to boolean
-      loggedIn = !!res.data;
-      setLoading(false);
-
-      if (!loggedIn) {
-        router.push("/login");
-      }
+  
+      if (!res.data) router.push("/login"); // Redirect only if not logged in
+      return !!res.data;
     } catch (error) {
-      console.log("Error getting user login status", error);
+      console.log("Error checking login status:", error);
+      return false;
     }
-
-    return loggedIn;
   };
+  
 
   // logout user
   const logoutUser = async () => {
@@ -118,6 +113,8 @@ export const UserContextProvider = ({ children }) => {
       });
 
       toast.success("User logged out successfully");
+
+      setUser({});
 
       // redirect to login page
       router.push("/login");
@@ -352,24 +349,39 @@ export const UserContextProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    const loginStatusGetUser = async () => {
-      const isLoggedIn = await userLoginStatus();
+  // useEffect(() => {
+  //   const loginStatusGetUser = async () => {
+  //     const isLoggedIn = await userLoginStatus();
 
-      if (isLoggedIn) {
-        await getUser();
+  //     if (isLoggedIn) {
+  //       await getUser();
+  //     }
+  //   };
+
+  //   loginStatusGetUser();
+  // }, []);
+
+  // useEffect(() => {
+  //   if (user.role === "admin") {
+  //     getAllUsers();
+  //   }
+  // }, [user.role]);
+
+ // IIFE (Immediately Invoked Function Expression) removes extra function creation. user?.role ensures it doesn't crash when user is undefined
+  useEffect(() => {
+    (async () => {
+      if (await userLoginStatus()) {
+        getUser();
       }
-    };
-
-    loginStatusGetUser();
+    })();
   }, []);
-
+  
   useEffect(() => {
-    if (user.role === "admin") {
+    if (user?.role === "admin") {
       getAllUsers();
     }
-  }, [user.role]);
-
+  }, [user?.role]);
+  
   return (
     <UserContext.Provider
       value={{

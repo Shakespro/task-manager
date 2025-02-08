@@ -44,14 +44,12 @@ export const TasksProvider = ({ children }) => {
     setTask({});
   };
 
-
-  
   // get tasks
   const getTasks = async () => {
     setLoading(true);
     try {
       const response = await axios.get(`${serverUrl}/tasks`);
-  
+
       setTasks(response.data.tasks);
     } catch (error) {
       console.log("Error getting tasks", error);
@@ -158,12 +156,12 @@ export const TasksProvider = ({ children }) => {
         openModalForAdd,
         openModalForEdit,
         activeTask,
+        closeModal,
         modalMode,
         openProfileModal,
         activeTasks,
         completedTasks,
         profileModal,
-        closeModal,
       }}
     >
       {children}
