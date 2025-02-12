@@ -10,8 +10,8 @@ axios.defaults.withCredentials = true;
 
 export const UserContextProvider = ({ children }) => {
   const serverUrl = process.env.NODE_ENV === "development"
-  ? "http://localhost:8000"
-  : "https://task-manager-f8mo.onrender.com";
+    ? "http://localhost:8000"
+    : "https://task-manager-f8mo.onrender.com";
 
   const router = useRouter();
 
@@ -73,6 +73,9 @@ export const UserContextProvider = ({ children }) => {
 
       toast.success("User logged in successfully");
 
+      // Check if cookie is set after login
+      console.log("Cookies after login:", document.cookie);
+
       // clear the form
       setUserState({
         email: "",
@@ -97,7 +100,7 @@ export const UserContextProvider = ({ children }) => {
       const res = await axios.get(`${serverUrl}/api/v1/login-status`, {
         withCredentials: true,
       });
-  
+
       if (!res.data) router.push("/login"); // Redirect only if not logged in
       return !!res.data;
     } catch (error) {
@@ -105,7 +108,7 @@ export const UserContextProvider = ({ children }) => {
       return false;
     }
   };
-  
+
 
   // logout user
   const logoutUser = async () => {
@@ -369,7 +372,7 @@ export const UserContextProvider = ({ children }) => {
   //   }
   // }, [user.role]);
 
- // IIFE (Immediately Invoked Function Expression) removes extra function creation. user?.role ensures it doesn't crash when user is undefined
+  // IIFE (Immediately Invoked Function Expression) removes extra function creation. user?.role ensures it doesn't crash when user is undefined
   useEffect(() => {
     (async () => {
       if (await userLoginStatus()) {
@@ -377,13 +380,13 @@ export const UserContextProvider = ({ children }) => {
       }
     })();
   }, []);
-  
+
   useEffect(() => {
     if (user?.role === "admin") {
       getAllUsers();
     }
   }, [user?.role]);
-  
+
   return (
     <UserContext.Provider
       value={{

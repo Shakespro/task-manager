@@ -8,7 +8,6 @@ import crypto from "node:crypto";
 import hashToken from "../../helpers/hashToken.js";
 import sendEmail from "../../helpers/sendEmail.js";
 
-// register user
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -50,7 +49,6 @@ export const registerUser = asyncHandler(async (req, res) => {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     sameSite: "none", // cross-site access --> allow all third-party cookies
     secure: false,
-    secure: process.env.NODE_ENV === "production", // Only secure in production
   });
 
   if (user) {
@@ -110,7 +108,7 @@ export const loginUser = asyncHandler(async (req, res) => {
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       sameSite: "none", // cross-site access --> allow all third-party cookies
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
     });
 
     // send back the user and token in the response to the client
@@ -134,7 +132,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: "none",
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     path: "/",
   });
 
@@ -186,25 +184,19 @@ export const updateUser = asyncHandler(async (req, res) => {
 
 // login status
 export const userLoginStatus = asyncHandler(async (req, res) => {
-  const token = req.cookies.token || req.header("Authorization")?.split(" ")[1];
+  const token = req.cookies.token;
 
   if (!token) {
     // 401 Unauthorized
     res.status(401).json({ message: "Not authorized, please login!" });
   }
   // verify the token
-  try {
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
   if (decoded) {
-    return res.status(200).json(true);
+    res.status(200).json(true);
   } else {
-    return res.status(401).json({ message: "Invalid token" });
-  }
-} catch (err) {
-  // Handle any errors in token verification (e.g., token expired)
-  console.error("JWT Verification Error:", err);
-  return res.status(401).json({ message: "Token verification failed" });
+    res.status(401).json(false);
   }
 });
 
