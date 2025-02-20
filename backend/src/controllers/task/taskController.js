@@ -5,7 +5,6 @@ import TaskModel from '../../models/tasks/TaskModel.js';
 export const createTask = asyncHandler(async (req, res) => {
     const { title, description, dueDate, priority, status } = req.body;
 
-    // Input validation
     if (!title || title.trim() === "") {
         return res.status(400).json({ message: 'Title is required!' });
     }
@@ -101,7 +100,7 @@ export const updateTask = asyncHandler(async (req, res) => {
         task.dueDate = dueDate || task.dueDate;
         task.priority = priority || task.priority;
         task.status = status || task.status;
-        task.completed = completed || task.completed;
+        task.completed = completed !== undefined ? completed : task.completed; 
 
         await task.save();
         res.status(200).json(task);

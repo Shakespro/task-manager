@@ -23,6 +23,9 @@ const corsOptions = {
     // Normalize origin by removing trailing slash
     const cleanOrigin = origin ? origin.replace(/\/+$/, "").toLowerCase() : null;
 
+    // Log incoming origin for debugging
+    console.log(`CORS Check for Origin: ${cleanOrigin}`);
+
     if (!cleanOrigin || allowedOrigins.includes(cleanOrigin)) {
       callback(null, true);
     } else {
@@ -32,7 +35,7 @@ const corsOptions = {
   },
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // Added PATCH here
 };
 
 // Apply CORS middleware
