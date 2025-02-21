@@ -9,6 +9,8 @@ import Header from "./Components/Header/Header";
 import MainContentLayout from "@/providers/MainContentLayout";
 import SidebarProvider from "@/providers/SidebarProvider";
 import MainLayout from "@/providers/MainLayout";
+import CookieBanner from "./Components/CookieBanner/CookieBanner"; // Import CookieBanner
+import GTMInitialiser from "@/providers/GTMInitialiser";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,9 +28,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <GTMInitialiser />
+      </head>
       <body className={inter.className}>
         <UserProvider>
           <Toaster position="top-center" />
+          
+          {/* Include the CookieBanner component */}
+          <CookieBanner />
 
           <div className="h-full flex overflow-hidden">
             <MiniSidebar />
