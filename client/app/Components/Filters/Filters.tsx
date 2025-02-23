@@ -18,9 +18,7 @@ function Filters() {
           top: "50%",
           // multiply activeIndex by 100% to get the percentage of the width of the element for the movement
           // add activeIndex * 10px to account for the space between the elements
-          transform: `translate(calc(${activeIndex * 100}% + ${
-            activeIndex * 10
-          }px), -50%)`,
+          transform: `translate(calc(${activeIndex * 100}% + ${activeIndex * 10}px), -50%)`,
           transition: "transform 300ms cubic-bezier(.95,.03,1,1)",
         }}
       ></span>
@@ -28,8 +26,10 @@ function Filters() {
         <button
           key={index}
           className={`relative px-1 z-10 font-medium text-sm ${
-            activeIndex === index ? "text-[#3aafae] " : "text-gray-500"
-          }`}
+            activeIndex === index
+              ? "bg-[#FFD700] text-black" // Apply gold background and black text for active state
+              : "text-gray-500"
+          } hover:bg-[#FFD700] hover:text-black transition duration-200 ease-in-out`}
           onClick={() => {
             setActiveIndex(index);
             setPriority(priority.toLowerCase());

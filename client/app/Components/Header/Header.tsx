@@ -1,5 +1,7 @@
 "use client";
 import { useTasks } from "@/context/taskContext";
+
+// Ensure openModalForAdd is defined in the useTasks context
 import { useUserContext } from "@/context/userContext";
 import { github, moon, profile } from "@/utils/icons";
 import Link from "next/link";
@@ -23,7 +25,7 @@ function Header() {
           <span role="img" aria-label="wave">
             👋
           </span>
-          {userId ? `Welcome, ${name}!` : "Welcome to Taskfyer"}
+          {userId ? `Welcome, ${name}!` : "Welcome to HsutleHub"}
         </h1>
         <p className="text-sm">
           {userId ? (
@@ -40,9 +42,9 @@ function Header() {
         </p>
       </div>
       <div className="h-[50px] flex items-center gap-[10.4rem]">
-        <button
-          className="px-8 py-3 bg-[#3aafae] text-white rounded-[50px]
-          hover:bg-[#00A1F1] hover:text-white transition-all duration-200 ease-in-out"
+              <button
+          className="px-8 py-3 bg-black text-white rounded-[50px]
+          hover:bg-[#FFD700] hover:text-black transition-all duration-200 ease-in-out"
           onClick={() => {
             if (userId) {
               openModalForAdd();
@@ -56,7 +58,7 @@ function Header() {
 
         <div className="flex gap-4 items-center">
           <Link
-            href="https://github.com/Maclinz/taskfyer"
+            href="https://github.com/Shakespro"
             passHref
             target="_blank"
             rel="noopener noreferrer"
@@ -64,7 +66,7 @@ function Header() {
           >
             {github}
           </Link>
-          <Link
+          {/* <Link
             href="https://github.com/Maclinz/taskfyer"
             passHref
             target="_blank"
@@ -81,7 +83,7 @@ function Header() {
             className="h-[40px] w-[40px] text-purple-500 rounded-full flex items-center justify-center text-lg border-2 border-[#E6E6E6]"
           >
             {profile}
-          </Link>
+          </Link> */}
         </div>
       </div>
     </header>

@@ -14,6 +14,7 @@
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "framer-motion": "^11.18.2",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.439.0",
@@ -24,6 +25,7 @@
     "react-dom": "^18",
     "react-gtm-module": "^2.0.11",
     "react-hot-toast": "^2.4.1",
+    "react-radial-progress": "^1.1.0",
     "recharts": "^2.15.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"

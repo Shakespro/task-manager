@@ -15,7 +15,7 @@ function Sidebar() {
 
       <div className="flex-shrink-0"> {/* Ensure button doesn't shrink */}
         <button
-          className="mt-4 mb-6 mx-6 py-4 px-8 bg-[#EB4E31] text-white rounded-[50px] hover:bg-[#3aafae] transition duration-200 ease-in-out"
+          className="mt-4 mb-6 mx-6 py-4 px-8 bg-[#000000] text-white rounded-[50px] hover:bg-[#FFD700] hover:text-black transition duration-200 ease-in-out"
           onClick={logoutUser}
         >
           Sign Out

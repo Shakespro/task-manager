@@ -78,8 +78,7 @@ function Modal() {
         <div className="flex flex-col gap-1">
           <label htmlFor="priority">Select Priority</label>
           <select
-            className="bg-[#F9F9F9] p-2 rounded-md border cursor-pointer"
-            name="priority"
+          className="bg-[#F9F9F9] border-2 border-gray-300 hover:border-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700] p-2 rounded-md"
             value={task.priority}
             onChange={(e) => handleInput("priority")(e)}
           >
@@ -91,7 +90,7 @@ function Modal() {
         <div className="flex flex-col gap-1">
           <label htmlFor="dueDate">Due Date</label>
           <input
-            className="bg-[#F9F9F9] p-2 rounded-md border"
+            className="bg-[#F9F9F9] p-2 rounded-md border-2 border-gray-300 hover:border-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
             type="date"
             name="dueDate"
             value={task.dueDate}
@@ -104,7 +103,7 @@ function Modal() {
             <label htmlFor="completed">Completed</label>
             <div>
               <select
-                className="bg-[#F9F9F9] p-2 rounded-md border cursor-pointer"
+                className="bg-[#F9F9F9] p-2 rounded-md border-2 border-gray-300 hover:border-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
                 name="completed"
                 value={task.completed ? "true" : "false"}
                 onChange={(e) => handleInput("completed")(e)}
@@ -117,15 +116,14 @@ function Modal() {
         </div>
 
         <div className="mt-8">
-          <button
-            type="submit"
-            className={`text-white py-2 rounded-md w-full hover:bg-blue-500 transition duration-200 ease-in-out ${
-              modalMode === "edit" ? "bg-blue-400" : "bg-green-400"
-            }`}
-          >
-            {modalMode === "edit" ? "Update Task" : "Create Task"}
-          </button>
-        </div>
+  <button
+    type="submit"
+    className="bg-black text-white py-2 rounded-md w-full transition duration-200 ease-in-out 
+               hover:bg-[#FFD700] hover:text-black"
+  >
+    {modalMode === "edit" ? "Update Task" : "Create Task"}
+  </button>
+</div>
       </form>
     </div>
   );

@@ -14,7 +14,7 @@ function MiniSidebar() {
     const pathname = usePathname();
 
     const getStrokeColor = (link: string) => {
-        return pathname === link ? "#3aafae" : "#71717a";
+        return pathname === link ? "#FFD700" : "#000000";
     };
 
     const navItems = [
@@ -49,11 +49,13 @@ function MiniSidebar() {
             <div className="mt-8 flex-1 flex flex-col items-center justify-between">
                 <ul className="flex flex-col gap-10">
                     {navItems.map((item, index) => (
-                        <li key={index} className="relative group">
-                            <Link href={item.link}>{item.icon}</Link>
+                         <li key={index} className="relative group flex items-center">
+                         <Link href={item.link} className="relative z-10">
+                           {item.icon}
+                         </Link>
 
                             {/* { Hover Tooltip } */}
-                            <span className="u-triangle absolute top-[50%] translate-y-[-50%] left-8 text-xs pointer-events-none text-white bg-[#3aafae] px-2 py-1 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <span className="u-triangle absolute top-[50%] translate-y-[-50%] left-8 text-xs pointer-events-none text-black bg-[#FFD700] px-2 py-1 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
                                 {item.title}
                             </span>
                         </li>
@@ -61,8 +63,8 @@ function MiniSidebar() {
                 </ul>
 
                 <div className="mb-[1.5rem]">
-                    <button className="w-12 h-12 flex justify-center items-center border-2 border-[#EB4E31]  p-2 rounded-full">
-                        <IconDeleteAll strokeColor="#EB4E31" />
+                    <button className="w-12 h-12 flex justify-center items-center border-2 border-[#FFD700]  p-2 rounded-full">
+                        <IconDeleteAll strokeColor="#000000" />
                     </button>
                 </div>
             </div>

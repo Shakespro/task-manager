@@ -1,6 +1,6 @@
 "use client";
-import { TrendingUp } from "lucide-react"
-import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts"
+import { TrendingUp } from "lucide-react";
+import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
 import { useTasks } from "@/context/taskContext";
 
 import {
@@ -10,41 +10,49 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
-
+} from "@/components/ui/chart";
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
-    color: "#8BCE89",
+    label: "Completed",
+    color: "#FFD700", // Gold for completed tasks
   },
   mobile: {
-    label: "PENDING",
-    color: "#EB4E31",
+    label: "Pending",
+    color: "#000000", // Black for pending tasks
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 function RadialChart() {
-  const { tasks, completedTasks, activeTasks } = useTasks();
+  const { tasks, completedTasks, activeTasks, previousCompletedTasks } = useTasks();
   const tasksTotal = tasks.length;
+  const currentCompletedTasks = completedTasks.length;
+
+  // Check if previous month data exists
+  const isFirstMonth = previousCompletedTasks === undefined || previousCompletedTasks === null;
+
+  // Calculate percentage change
+  const percentageChange = isFirstMonth
+    ? null
+    : ((currentCompletedTasks - previousCompletedTasks) / previousCompletedTasks) * 100;
 
   const chartData = [
     {
       pending: activeTasks.length,
-      completed: completedTasks.length,
+      completed: currentCompletedTasks,
     },
   ];
 
   return (
-    <Card className="flex flex-col border-2 border-white shadow-none bg-[#EDEDED]">
+    <Card className="flex flex-col border-2 border-[#FFD700] shadow-none bg-[#EDEDED]">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Comleted vs Pending Tasks</CardTitle>
+        <CardTitle>Completed vs Pending Tasks</CardTitle>
         <CardDescription>Task completion status.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 items-center pb-0">
@@ -58,10 +66,7 @@ function RadialChart() {
             innerRadius={80}
             outerRadius={130}
           >
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
               <Label
                 content={({ viewBox }) => {
@@ -92,12 +97,12 @@ function RadialChart() {
               dataKey="completed"
               stackId="a"
               cornerRadius={5}
-              fill="var(--color-desktop)"
+              fill="#FFD700" // Gold
               className="stroke-transparent stroke-2"
             />
             <RadialBar
               dataKey="pending"
-              fill="var(--color-mobile)"
+              fill="#000000" // Black
               stackId="a"
               cornerRadius={5}
               className="stroke-transparent stroke-2"
@@ -106,10 +111,17 @@ function RadialChart() {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Task completion improved by 12% this month{" "}
-          <TrendingUp className="h-4 w-4" />
-        </div>
+        {isFirstMonth ? (
+          <div className="leading-none text-muted-foreground">
+            This is your first month! From next month, you'll see task completion trends.
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 font-medium leading-none">
+            Task completion {percentageChange !== null && percentageChange >= 0 ? "improved" : "declined"} by{" "}
+            {percentageChange !== null ? Math.abs(percentageChange).toFixed(1) : "0.0"}% this month{" "}
+            <TrendingUp className="h-4 w-4" />
+          </div>
+        )}
         <div className="leading-none text-muted-foreground">
           Analysis based on tasks completed in the last 30 days.
         </div>
