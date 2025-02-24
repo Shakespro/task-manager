@@ -10,12 +10,12 @@ function LoginForm() {
   const togglePassword = () => setShowPassword(!showPassword);
 
   return (
-    <div className="relative flex justify-center items-center h-screen w-screen bg-white">
+    <div className="relative flex justify-center items-start h-screen w-screen bg-white">
       {/* Extended Gold Background */}
       <div className="absolute inset-0 bg-[#FFD700] rounded-[50%] w-[80%] h-[90%] md:w-[60%] md:h-[75%] lg:w-[50%] lg:h-[70%] mx-auto blur-[100px] opacity-15"></div>
 
       {/* Form Container */}
-      <form className="relative z-10 px-10 py-14 rounded-lg bg-[#1E1E1E] border border-[#FFD700] w-full max-w-[520px] text-white shadow-lg">
+      <form className="relative z-10 px-10 py-14 rounded-lg bg-[#1E1E1E] border border-[#FFD700] w-full max-w-[520px] text-white shadow-lg mt-12">
         <div className="relative z-10">
           <h1 className="mb-2 text-center text-[1.35rem] font-bold text-[#FFD700]">
             Login to Your Account

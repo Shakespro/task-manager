@@ -7,7 +7,7 @@ function Sidebar() {
   const { logoutUser } = useUserContext();
 
   return (
-    <div className="w-[20rem] h-full fixed right-0 top-0 bg-[#f9f9f9] flex flex-col overflow-y-auto">
+    <div className="w-[20rem] h-full fixed right-0 top-0 bg-[#f9f9f9] flex flex-col overflow-y-auto z-50"> {/* Increased z-index */}
       <Profile />
       <div className="mt-4 mx-6 flex-grow">
         <RadialChart />

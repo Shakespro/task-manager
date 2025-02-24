@@ -1,12 +1,13 @@
 "use client";
 import { useTasks } from "@/context/taskContext";
 import { useUserContext } from "@/context/userContext";
-import Image from "next/image";
 import React from "react";
+import Image from "next/image"; // Import Image component
 
 function Profile() {
   const { user } = useUserContext();
   const { tasks, activeTasks, completedTasks, openProfileModal } = useTasks();
+  
   return (
     <div className="m-6">
       <div
@@ -15,8 +16,9 @@ function Profile() {
         onClick={openProfileModal}
       >
         <div>
+          {/* Use the image from the public folder */}
           <Image
-            src={user?.photo}
+            src="/proPic.jpg"  // Referencing image directly from the public folder
             alt="avatar"
             width={70}
             height={70}

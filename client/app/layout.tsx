@@ -11,6 +11,7 @@ import SidebarProvider from "@/providers/SidebarProvider";
 import MainLayout from "@/providers/MainLayout";
 import CookieBanner from "./Components/CookieBanner/CookieBanner"; // Import CookieBanner
 import GTMInitialiser from "@/providers/GTMInitialiser";
+import Footer from "./Components/Footer/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -49,6 +50,7 @@ export default function RootLayout({
                 <MainLayout>{children}</MainLayout>
                 <SidebarProvider />
               </MainContentLayout>
+              <Footer />
             </div>
           </div>
         </UserProvider>
