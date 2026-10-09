@@ -24,7 +24,7 @@ export const TasksProvider = ({ children }) => {
   const openModalForAdd = () => {
     setModalMode("add");
     setIsEditing(true);
-    setTask({});
+    setTask({ title: "", description: "", priority: "low", dueDate: "", completed: false });
   };
 
   const openModalForEdit = (task) => {
@@ -42,7 +42,7 @@ export const TasksProvider = ({ children }) => {
     setProfileModal(false);
     setModalMode("");
     setActiveTask(null);
-    setTask({});
+    setTask({ title: "", description: "", priority: "low", dueDate: "", completed: false });
   };
 
   // get tasks
@@ -52,7 +52,7 @@ export const TasksProvider = ({ children }) => {
       const response = await axios.get(`${serverUrl}/tasks`);
       setTasks(response.data.tasks);
     } catch (error) {
-      console.log("Error getting tasks", error);
+      toast.error(error.response?.data?.message || "Could not load tasks. Please refresh to retry.");
     }
     setLoading(false);
   };
@@ -73,35 +73,33 @@ export const TasksProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await axios.post(`${serverUrl}/task/create`, task);
-      setTasks([...tasks, res.data]);
+      setTasks((currentTasks) => [...currentTasks, res.data]);
       toast.success("Task created successfully");
+      return true;
     } catch (error) {
-      console.log("Error creating task", error);
+      toast.error(error.response?.data?.message || "Could not create task. Please retry.");
+      return false;
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const updateTask = async (task) => {
-  setLoading(true);
-  try {
-    const res = await axios.patch(`${serverUrl}/task/${task._id}`, task);
-
-    // Log the response to check if the data is correctly updated
-    console.log("Updated task from backend:", res.data);
-
-    const newTasks = tasks.map((tsk) =>
-      tsk._id === res.data._id ? res.data : tsk
-    );
-
-    toast.success("Task updated successfully");
-
-    setTasks(newTasks);
-  } catch (error) {
-    console.log("Error updating task", error);
-  }
-  setLoading(false);
-};
-
+    setLoading(true);
+    try {
+      const response = await axios.patch(`${serverUrl}/task/${task._id}`, task);
+      setTasks((currentTasks) => currentTasks.map((existingTask) =>
+        existingTask._id === response.data._id ? response.data : existingTask
+      ));
+      toast.success("Task updated successfully");
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Could not update task. Please retry.");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const deleteTask = async (taskId) => {
     setLoading(true);
@@ -110,7 +108,9 @@ export const TasksProvider = ({ children }) => {
       const newTasks = tasks.filter((tsk) => tsk._id !== taskId);
       setTasks(newTasks);
     } catch (error) {
-      console.log("Error deleting task", error);
+      toast.error(error.response?.data?.message || "Could not delete task. Please retry.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,7 +118,8 @@ export const TasksProvider = ({ children }) => {
     if (name === "setTask") {
       setTask(e);
     } else {
-      setTask({ ...task, [name]: e.target.value });
+      const value = name === "completed" ? e.target.value === "true" : e.target.value;
+      setTask((currentTask) => ({ ...currentTask, [name]: value }));
     }
   };
 
@@ -129,7 +130,11 @@ export const TasksProvider = ({ children }) => {
   const activeTasks = tasks.filter((task) => !task.completed);
 
   useEffect(() => {
-    getTasks();
+    if (userId) {
+      getTasks();
+    } else {
+      setTasks([]);
+    }
   }, [userId]);
 
   return (

@@ -6,6 +6,7 @@ import React, { useEffect } from "react";
 function Modal() {
   const {
     task,
+    loading,
     handleInput,
     createTask,
     isEditing,
@@ -14,14 +15,14 @@ function Modal() {
     activeTask,
     updateTask,
   } = useTasks();
-  
+
   const ref = React.useRef(null);
 
   // Use the hook to detect clicks outside the modal
   useDetectOutside({
     ref,
     callback: () => {
-      if (isEditing) {
+      if (isEditing && !loading) {
         closeModal(); // Close modal if it is in add/edit mode
       }
     },
@@ -33,15 +34,17 @@ function Modal() {
     }
   }, [modalMode, activeTask]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (modalMode === "edit") {
-      updateTask(task);
-    } else if (modalMode === "add") {
-      createTask(task);
-    }
-    closeModal();
+    if (loading) return;
+
+    const saved = modalMode === "edit"
+      ? await updateTask(task)
+      : await createTask(task);
+
+    // Keep the form and its input available when the server rejects a save.
+    if (saved) closeModal();
   };
 
   return (
@@ -60,7 +63,9 @@ function Modal() {
             id="title"
             placeholder="Task Title"
             name="title"
-            value={task.title}
+            required
+            disabled={loading}
+            value={task.title || ""}
             onChange={(e) => handleInput("title")(e)}
           />
         </div>
@@ -68,10 +73,13 @@ function Modal() {
           <label htmlFor="description">Description</label>
           <textarea
             className="bg-[#F9F9F9] p-2 rounded-md border resize-none"
+            id="description"
+            required
+            disabled={loading}
             name="description"
             placeholder="Task Description"
             rows={4}
-            value={task.description}
+            value={task.description || ""}
             onChange={(e) => handleInput("description")(e)}
           />
         </div>
@@ -79,7 +87,9 @@ function Modal() {
           <label htmlFor="priority">Select Priority</label>
           <select
           className="bg-[#F9F9F9] border-2 border-gray-300 hover:border-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700] p-2 rounded-md"
-            value={task.priority}
+            id="priority"
+            disabled={loading}
+            value={task.priority || "low"}
             onChange={(e) => handleInput("priority")(e)}
           >
             <option value="low">Low</option>
@@ -92,8 +102,10 @@ function Modal() {
           <input
             className="bg-[#F9F9F9] p-2 rounded-md border-2 border-gray-300 hover:border-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
             type="date"
+            id="dueDate"
+            disabled={loading}
             name="dueDate"
-            value={task.dueDate}
+            value={task.dueDate ? task.dueDate.slice(0, 10) : ""}
             onChange={(e) => handleInput("dueDate")(e)}
           />
         </div>
@@ -104,6 +116,8 @@ function Modal() {
             <div>
               <select
                 className="bg-[#F9F9F9] p-2 rounded-md border-2 border-gray-300 hover:border-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
+                id="completed"
+                disabled={loading}
                 name="completed"
                 value={task.completed ? "true" : "false"}
                 onChange={(e) => handleInput("completed")(e)}
@@ -118,10 +132,11 @@ function Modal() {
         <div className="mt-8">
   <button
     type="submit"
-    className="bg-black text-white py-2 rounded-md w-full transition duration-200 ease-in-out 
+    disabled={loading}
+    className="bg-black text-white py-2 rounded-md w-full transition duration-200 ease-in-out
                hover:bg-[#FFD700] hover:text-black"
   >
-    {modalMode === "edit" ? "Update Task" : "Create Task"}
+    {loading ? "Saving…" : modalMode === "edit" ? "Update Task" : "Create Task"}
   </button>
 </div>
       </form>

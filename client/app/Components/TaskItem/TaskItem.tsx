@@ -24,7 +24,7 @@ function TaskItem({ task }: TaskItemProps) {
     }
   };
 
-  const { getTask, openModalForEdit, deleteTask, modalMode } = useTasks();
+  const { openModalForEdit, deleteTask, updateTask, loading } = useTasks();
 
   return (
     <motion.div
@@ -43,6 +43,9 @@ function TaskItem({ task }: TaskItemProps) {
         <div>
           <div className="flex items-center gap-3 text-gray-400 text-[1rem]">
             <button
+              aria-label={task.completed ? "Mark task pending" : "Mark task completed"}
+              disabled={loading}
+              onClick={() => updateTask({ ...task, completed: !task.completed })}
               className={`${
                 task.completed ? "text-yellow-400" : "text-gray-400"
               }`}
@@ -50,15 +53,18 @@ function TaskItem({ task }: TaskItemProps) {
               {star}
             </button>
             <button
+              aria-label="Edit task"
+              disabled={loading}
               className="text-[#00A1F1]"
               onClick={() => {
-                getTask(task._id);
                 openModalForEdit(task);
               }}
             >
               {edit}
             </button>
             <button
+              aria-label="Delete task"
+              disabled={loading}
               className="text-[#F65314]"
               onClick={() => {
                 deleteTask(task._id);

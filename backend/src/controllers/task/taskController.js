@@ -3,7 +3,7 @@ import TaskModel from '../../models/tasks/TaskModel.js';
 
 // Create a task
 export const createTask = asyncHandler(async (req, res) => {
-    const { title, description, dueDate, priority, status } = req.body;
+    const { title, description, dueDate, priority, status, completed } = req.body;
 
     if (!title || title.trim() === "") {
         return res.status(400).json({ message: 'Title is required!' });
@@ -19,6 +19,7 @@ export const createTask = asyncHandler(async (req, res) => {
             dueDate,
             priority,
             status,
+            completed,
             user: req.user._id,
         });
 
@@ -100,7 +101,7 @@ export const updateTask = asyncHandler(async (req, res) => {
         task.dueDate = dueDate || task.dueDate;
         task.priority = priority || task.priority;
         task.status = status || task.status;
-        task.completed = completed !== undefined ? completed : task.completed; 
+        task.completed = completed !== undefined ? completed : task.completed;
 
         await task.save();
         res.status(200).json(task);
