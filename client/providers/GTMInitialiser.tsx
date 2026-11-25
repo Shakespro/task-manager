@@ -1,17 +1,22 @@
-"use client"
+"use client";
 
-import React, { useEffect } from 'react'
-import TagManager from 'react-gtm-module'
+import { useEffect } from "react";
+import Cookies from "js-cookie";
+import TagManager from "react-gtm-module";
 
-function GTMInitialiser() {
-    useEffect(() => {
-        const tagManagerArgs = {
-          gtmId: 'GTM-5DNQDMJ4',
-        };
+let initialized = false;
 
-        TagManager.initialize(tagManagerArgs)
-        }, []);
-        return null;
-    }
-
-export default GTMInitialiser
+export default function GTMInitialiser() {
+  useEffect(() => {
+    const initialize = () => {
+      if (!initialized && Cookies.get("userConsent") === "true") {
+        TagManager.initialize({ gtmId: "GTM-5DNQDMJ4" });
+        initialized = true;
+      }
+    };
+    initialize();
+    window.addEventListener("analytics-consent", initialize);
+    return () => window.removeEventListener("analytics-consent", initialize);
+  }, []);
+  return null;
+}

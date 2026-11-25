@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
 interface DetectOutsideProps {
-  ref: React.RefObject<HTMLDivElement>;
+  ref: React.RefObject<HTMLElement | null>;
   callback: () => void;
 }
 

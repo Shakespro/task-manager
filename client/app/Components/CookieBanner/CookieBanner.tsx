@@ -16,12 +16,13 @@ const CookieBanner: React.FC = () => {
   }, []);
 
   const handleAccept = () => {
-    Cookies.set('userConsent', 'true', { expires: 365 });
+    Cookies.set('userConsent', 'true', { expires: 365, sameSite: 'Lax', secure: location.protocol === 'https:' });
+    window.dispatchEvent(new Event('analytics-consent'));
     setIsVisible(false);
   };
 
   const handleDecline = () => {
-    Cookies.set('userConsent', 'false', { expires: 365 });
+    Cookies.set('userConsent', 'false', { expires: 365, sameSite: 'Lax', secure: location.protocol === 'https:' });
     setIsVisible(false);
   };
 
@@ -37,7 +38,7 @@ const CookieBanner: React.FC = () => {
     <>
       <div style={bannerStyle}>
         <p style={textStyle}>
-          We use cookies to enhance your experience. By using our site, you agree to our{' '}
+          Essential cookies keep you signed in. Optional Google analytics loads only if you accept. Read our{' '}
           <button onClick={toggleModal} style={linkStyle}>
             Privacy Policy
           </button>
@@ -100,7 +101,7 @@ const CookieBanner: React.FC = () => {
               <strong>Changes to This Privacy Policy</strong>
               <br />
               We may update our Privacy Policy from time to time. You are advised to review this
-              Privacy Policy periodically for any changes. Your information is not used for anything other than the stated purposes above.
+              Privacy Policy periodically for any changes. If you accept optional analytics, Google Tag Manager loads analytics services. Hosting, database, and email providers process information needed to run this portfolio demo. Please use sample tasks and avoid sensitive information.
             </p>
           </div>
         </div>

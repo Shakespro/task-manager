@@ -7,21 +7,36 @@ import Token from "../../models/auth/Token.js";
 import crypto from "node:crypto";
 import hashToken from "../../helpers/hashToken.js";
 import sendEmail from "../../helpers/sendEmail.js";
+import {
+  currentSession,
+  sessionCookie,
+  validPassword,
+} from "../../helpers/session.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
   //validation
-  if (!name || !email || !password) {
+  if (
+    typeof name !== "string" ||
+    !name.trim() ||
+    typeof email !== "string" ||
+    !email.trim() ||
+    typeof password !== "string" ||
+    !password
+  ) {
     // 400 Bad Request
-    res.status(400).json({ message: "All fields are required" });
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   // check password length
-  if (password.length < 6) {
+  if (!validPassword(password)) {
     return res
       .status(400)
-      .json({ message: "Password must be at least 6 characters" });
+      .json({
+        message:
+          "Password must be at least 8 characters and no more than 72 UTF-8 bytes",
+      });
   }
 
   // check if user already exists
@@ -40,15 +55,12 @@ export const registerUser = asyncHandler(async (req, res) => {
   });
 
   // generate token with user id
-  const token = generateToken(user._id);
+  const token = generateToken(user._id, user.tokenVersion);
 
   // send back the user and token in the response to the client
   res.cookie("token", token, {
-    path: "/",
-    httpOnly: true,
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    sameSite: "none", // cross-site access --> allow all third-party cookies
-    secure: false,
+    ...sessionCookie,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 
   if (user) {
@@ -76,7 +88,12 @@ export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   // validation
-  if (!email || !password) {
+  if (
+    typeof email !== "string" ||
+    !email.trim() ||
+    typeof password !== "string" ||
+    !password
+  ) {
     // 400 Bad Request
     return res.status(400).json({ message: "All fields are required" });
   }
@@ -97,18 +114,15 @@ export const loginUser = asyncHandler(async (req, res) => {
   }
 
   // generate token with user id
-  const token = generateToken(userExists._id);
+  const token = generateToken(userExists._id, userExists.tokenVersion);
 
   if (userExists && isMatch) {
     const { _id, name, email, role, photo, bio, isVerified } = userExists;
 
     // set the token in the cookie
     res.cookie("token", token, {
-      path: "/",
-      httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      sameSite: "none", // cross-site access --> allow all third-party cookies
-      secure: true,
+      ...sessionCookie,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     // send back the user and token in the response to the client
@@ -129,12 +143,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 
 // logout user
 export const logoutUser = asyncHandler(async (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
-    path: "/",
-  });
+  res.clearCookie("token", sessionCookie);
 
   res.status(200).json({ message: "User logged out" });
 });
@@ -184,19 +193,12 @@ export const updateUser = asyncHandler(async (req, res) => {
 
 // login status
 export const userLoginStatus = asyncHandler(async (req, res) => {
-  const token = req.cookies.token;
-
-  if (!token) {
-    // 401 Unauthorized
-    res.status(401).json({ message: "Not authorized, please login!" });
-  }
-  // verify the token
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-  if (decoded) {
-    res.status(200).json(true);
-  } else {
-    res.status(401).json(false);
+  try {
+    const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select("tokenVersion");
+    return res.status(200).json(Boolean(user && currentSession(decoded, user)));
+  } catch {
+    return res.status(200).json(false);
   }
 });
 
@@ -297,7 +299,7 @@ export const verifyUser = asyncHandler(async (req, res) => {
 export const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
-  if (!email) {
+  if (typeof email !== "string" || !email.trim()) {
     return res.status(400).json({ message: "Email is required" });
   }
 
@@ -356,17 +358,17 @@ export const resetPassword = asyncHandler(async (req, res) => {
   const { resetPasswordToken } = req.params;
   const { password } = req.body;
 
-  if (!password) {
-    return res.status(400).json({ message: "Password is required" });
+  if (!validPassword(password)) {
+    return res
+      .status(400)
+      .json({
+        message:
+          "Password must be at least 8 characters and no more than 72 UTF-8 bytes",
+      });
   }
 
-  // hash the reset token
-  const hashedToken = hashToken(resetPasswordToken);
-
-  // check if token exists and has not expired
-  const userToken = await Token.findOne({
-    passwordResetToken: hashedToken,
-    // check if the token has not expired
+  const userToken = await Token.findOneAndDelete({
+    passwordResetToken: hashToken(resetPasswordToken),
     expiresAt: { $gt: Date.now() },
   });
 
@@ -374,14 +376,18 @@ export const resetPassword = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Invalid or expired reset token" });
   }
 
-  // find user with the user id in the token
   const user = await User.findById(userToken.userId);
+  if (!user) {
+    return res.status(400).json({ message: "Invalid or expired reset token" });
+  }
 
-  // update user password
   user.password = password;
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
   await user.save();
-
-  res.status(200).json({ message: "Password reset successfully" });
+  res.clearCookie("token", sessionCookie);
+  return res
+    .status(200)
+    .json({ message: "Password reset successfully. Please log in again." });
 });
 
 // change password
@@ -390,6 +396,15 @@ export const changePassword = asyncHandler(async (req, res) => {
 
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ message: "All fields are required" });
+  }
+
+  if (!validPassword(newPassword)) {
+    return res
+      .status(400)
+      .json({
+        message:
+          "Password must be at least 8 characters and no more than 72 UTF-8 bytes",
+      });
   }
 
   //find user by id
@@ -405,7 +420,10 @@ export const changePassword = asyncHandler(async (req, res) => {
   // reset password
   if (isMatch) {
     user.password = newPassword;
+    user.tokenVersion = (user.tokenVersion ?? 0) + 1;
     await user.save();
+    await Token.deleteMany({ userId: user._id });
+    res.clearCookie("token", sessionCookie);
     return res.status(200).json({ message: "Password changed successfully" });
   } else {
     return res.status(400).json({ message: "Password could not be changed!" });

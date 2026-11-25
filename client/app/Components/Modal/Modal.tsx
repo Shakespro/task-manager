@@ -16,7 +16,7 @@ function Modal() {
     updateTask,
   } = useTasks();
 
-  const ref = React.useRef(null);
+  const ref = React.useRef<HTMLFormElement>(null);
 
   // Use the hook to detect clicks outside the modal
   useDetectOutside({

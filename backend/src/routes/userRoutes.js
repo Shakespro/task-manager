@@ -1,3 +1,4 @@
+import { loginLimiter, accountLimiter } from "../middleware/rateLimits.js";
 import express from "express";
 import {
   changePassword,
@@ -24,8 +25,8 @@ import {
 
 const router = express.Router();
 
-router.post("/register", registerUser);
-router.post("/login", loginUser);
+router.post("/register", accountLimiter, registerUser);
+router.post("/login", loginLimiter, loginUser);
 router.get("/logout", logoutUser);
 router.get("/user", protect, getUser);
 router.patch("/user", protect, updateUser);
@@ -40,18 +41,22 @@ router.get("/admin/users", protect, creatorMiddleware, getAllUsers);
 router.get("/login-status", userLoginStatus);
 
 // email verification
-router.post("/verify-email", protect, verifyEmail);
+router.post("/verify-email", protect, accountLimiter, verifyEmail);
 
 // veriify user --> email verification
-router.post("/verify-user/:verificationToken", verifyUser);
+router.post("/verify-user/:verificationToken", accountLimiter, verifyUser);
 
 // forgot password
-router.post("/forgot-password", forgotPassword);
+router.post("/forgot-password", accountLimiter, forgotPassword);
 
 //reset password
-router.post("/reset-password/:resetPasswordToken", resetPassword);
+router.post(
+  "/reset-password/:resetPasswordToken",
+  accountLimiter,
+  resetPassword,
+);
 
 // change password ---> user must be logged in
-router.patch("/change-password", protect, changePassword);
+router.patch("/change-password", protect, accountLimiter, changePassword);
 
 export default router;

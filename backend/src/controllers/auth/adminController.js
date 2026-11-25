@@ -19,7 +19,9 @@ export const deleteUser = asyncHandler(async (req, res) => {
 // get all users
 export const getAllUsers = asyncHandler(async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({}).select(
+      "_id name email role photo bio isVerified createdAt updatedAt",
+    );
 
     if (!users) {
       res.status(404).json({ message: "No users found" });

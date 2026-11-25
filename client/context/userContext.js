@@ -291,7 +291,9 @@ export const UserContextProvider = ({ children }) => {
         }
       );
 
-      toast.success("Password changed successfully");
+      toast.success("Password changed. Please log in again.");
+      setUser({});
+      router.push("/login");
       setLoading(false);
     } catch (error) {
       console.log("Error changing password", error);

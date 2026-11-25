@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import jwt from "jsonwebtoken";
+import { currentSession } from "../helpers/session.js";
 import User from "../models/auth/UserModel.js";
 
 export const protect = asyncHandler(async (req, res, next) => {
@@ -21,6 +22,12 @@ export const protect = asyncHandler(async (req, res, next) => {
     // check if user exists
     if (!user) {
       return res.status(404).json({ message: "User not found!" });
+    }
+
+    if (!currentSession(decoded, user)) {
+      return res
+        .status(401)
+        .json({ message: "Session expired. Please log in again." });
     }
 
     // set user details in the request object

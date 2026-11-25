@@ -39,12 +39,14 @@ const UserSchema = new mongoose.Schema(
       default: "user",
     },
 
+    tokenVersion: { type: Number, default: 0 },
+
     isVerified: {
       type: Boolean,
       default: false,
     },
   },
-  { timestamps: true, minimize: true }
+  { timestamps: true, minimize: true },
 );
 
 // hash the password before saving

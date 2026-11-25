@@ -1,15 +1,12 @@
 "use client";
+import { useParams } from "next/navigation";
 import { useUserContext } from "@/context/userContext";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
-interface Props {
-  params: {
-    resetToken: string;
-  };
-}
+function Page() {
+  const { resetToken } = useParams<{ resetToken: string }>();
 
-function page({ params: { resetToken } }: Props) {
   const { resetPassword } = useUserContext();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -113,4 +110,4 @@ function page({ params: { resetToken } }: Props) {
   );
 }
 
-export default page;
+export default Page;
